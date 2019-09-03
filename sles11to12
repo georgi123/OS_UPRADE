@@ -14,15 +14,16 @@ LOGFILE=/var/log/sles11to12.log
 TIME=$(date +"%T:%m-%d-%y")
 
 ##set mountpoint from old sles11 server
-mount /dev/$1/root /$OLDSLES/
-mount /dev/$1/opt /$OLDSLES/opt/
-mount /dev/$1/tmp /$OLDSLES/tmp/
-mount /dev/$1/home /$OLDSLES/usr2/local/
-echo "$TIME Sles11 disk mount successful" >> $LOGFILE
+echo "$TIME Mount root, opt, tmp, home in mnt."  >> $LOGFILE
+mount /dev/$1/root /$OLDSLES/ 
+mount /dev/$1/opt /$OLDSLES/opt/ 
+mount /dev/$1/tmp /$OLDSLES/tmp/ 
+mount /dev/$1/home /$OLDSLES/usr2/local/ 
+echo "$TIME Sles11 disk mount successful"  >> $LOGFILE
 ######check fstab#######
 ###df -htxfs |grep -v system|sort -n -k6###can use that to check if ther are differences##
 #echo "FSTAB"
-cp /$CONF/fstab /$CONF/fstab.back && echo "$TIME backup fstab." >> $LOGFILE
+cp /$CONF/fstab /$CONF/fstab.back && echo "$TIME backup fstab."  >> $LOGFILE
 
 
 
@@ -30,11 +31,12 @@ cp /$CONF/fstab /$CONF/fstab.back && echo "$TIME backup fstab." >> $LOGFILE
 
 if [ -f /$CONF/products.d/SUSE_SLES_SAP.prod ]
  then
-   rsync -avz /$OLDSLES/opt/omni/bin/* /opt/omni/bin >> $LOGFILE
+   echo "$TIME rsync -avz /$OLDSLES/opt/omni/bin/* /opt/omni/bin" >> $LOGFILE
+   rsync -avz /$OLDSLES/opt/omni/bin/* /opt/omni/bin 
  else
-   echo "Server is Oracle" >> $LOGFILE
+   echo "Server is Oracle"  >> $LOGFILE
 fi
-echo "$TIME Check server type." >> $LOGFILE
+echo "$TIME Check server type(oracle or SAP)."  >> $LOGFILE
 
 
 
@@ -49,26 +51,34 @@ while read p; do ln -s $p;done < linklist
 find / -maxdepth 1 -xdev -type l -exec ls -l {} \;
 ####for non sap oracle servers only#####
  rm -rf /special/
-ln -s /opt/special/ /special >> $LOGFILE
-ls /special >> $LOGFILE
+ln -s /opt/special/ /special 2>&1 >> $LOGFILE
+ls /special 2>&1 >> $LOGFILE
 
 echo "$TIME Sim links created successful. " >> $LOGFILE
 
 ##fstab sincronisation
-cp -fr  /$OLDSLES/$CONF/fstab  /$CONF/fstab$(date  +%Y%m%d) >> $LOGFILE
-diff /$CONF/fstab /$CONF/fstab$(date  +%Y%m%d) >> $LOGFILE
+cp -fr  /$OLDSLES/$CONF/fstab  /$CONF/fstab$(date  +%Y%m%d) 2>&1 >> $LOGFILE
+diff /$CONF/fstab /$CONF/fstab$(date  +%Y%m%d) 2>&1 >> $LOGFILE
 
 
 
 #transfer inportant files and configuration
-rsync -avz  /$OLDSLES/usr/local/bin/  /usr/local/bin >> $LOGFILE
-rsync -avz  /$OLDSLES/$CONF/ssh/ /$CONF/ssh >> $LOGFILE
-rsync -avz  /$OLDSLES/$CONF/BASFfirewall.d/ /$CONF/BASFfirewall.d >> $LOGFILE
-rsync -avz  /$OLDSLES/root/.ssh/ /root/.ssh >> $LOGFILE
-rsync -avz  /$OLDSLES/$CONF/auto.* /$CONF/ >> $LOGFILE 
-cp -fr  /$OLDSLES/$CONF/resolv.conf  /$CONF/resolv.conf >> $LOGFILE 
-cp -fr  /$OLDSLES/$CONF/nscd.conf /$CONF/nscd.conf >> $LOGFILE 
-cp -fr  /$OLDSLES/$CONF/hosts /$CONF/hosts >> $LOGFILE 
+echo "rsync -avz  /$OLDSLES/usr/local/bin/  /usr/local/bin"  >> $LOGFILE
+rsync -avz  /$OLDSLES/usr/local/bin/  /usr/local/bin 
+echo "rsync -avz  /$OLDSLES/$CONF/ssh/ /$CONF/ssh"  >> $LOGFILE
+rsync -avz  /$OLDSLES/$CONF/ssh/ /$CONF/ssh 
+echo "rsync -avz  /$OLDSLES/$CONF/BASFfirewall.d/ /$CONF/BASFfirewall.d"  >> $LOGFILE
+rsync -avz  /$OLDSLES/$CONF/BASFfirewall.d/ /$CONF/BASFfirewall.d 
+echo "rsync -avz  /$OLDSLES/root/.ssh/ /root/.ssh"  >> $LOGFILE
+rsync -avz  /$OLDSLES/root/.ssh/ /root/.ssh 
+echo "rsync -avz  /$OLDSLES/$CONF/auto.* /$CONF/"  >> $LOGFILE
+rsync -avz  /$OLDSLES/$CONF/auto.* /$CONF/ 
+echo "cp -fr  /$OLDSLES/$CONF/resolv.conf  /$CONF/resolv.conf "  >> $LOGFILE
+cp -fr  /$OLDSLES/$CONF/resolv.conf  /$CONF/resolv.conf 
+echo "cp -fr  /$OLDSLES/$CONF/nscd.conf /$CONF/nscd.conf "  >> $LOGFILE
+cp -fr  /$OLDSLES/$CONF/nscd.conf /$CONF/nscd.conf 
+echo "cp -fr  /$OLDSLES/$CONF/hosts /$CONF/hosts"  >> $LOGFILE
+cp -fr  /$OLDSLES/$CONF/hosts /$CONF/hosts 
 
 echo "$TIME Sinked important files and directories. " >> $LOGFILE
 
@@ -86,16 +96,18 @@ echo "$TIME Checking for rpc user. " >> $LOGFILE
 echo "root:sles11to12" |chpasswd
 
 #cp -fr  /$OLDSLES/$CONF/services /$CONF/services
-
-rsync -avz  /$OLDSLES/root/scripts/ /root/scripts >> $LOGFILE
-rsync -avz  /$OLDSLES/opt/special/ /opt/special >> $LOGFILE
-
+echo "rsync -avz  /$OLDSLES/root/scripts/ /root/scripts"  >> $LOGFILE
+rsync -avz  /$OLDSLES/root/scripts/ /root/scripts 
+echo "rsync -avz  /$OLDSLES/opt/special/ /opt/special "  >> $LOGFILE
+rsync -avz  /$OLDSLES/opt/special/ /opt/special 
 echo "$TIME Sinking special directory. " >> $LOGFILE
 
 #####copy apx important files#######
-
+echo "rsync -avz /$OLDSLES/opt/apxpccc/ /opt/apxpccc"  >> $LOGFILE
 rsync -avz /$OLDSLES/opt/apxpccc/ /opt/apxpccc
+echo "rsync -avz /$OLDSLES/opt/apxpccp/ /opt/apxpccp"  >> $LOGFILE
 rsync -avz /$OLDSLES/opt/apxpccp/ /opt/apxpccp
+echo "rsync -avz /$OLDSLES/opt/apxpccs/ /opt/apxpccs"  >> $LOGFILE
 rsync -avz /$OLDSLES/opt/apxpccs/ /opt/apxpccs
 
 echo "$TIME Coping APX directories. " >> $LOGFILE
@@ -106,30 +118,34 @@ echo "$TIME Coping APX directories. " >> $LOGFILE
 ##check if oracles DB is installed and running
 
 if [ -f /$OLDSLES/etc/oratab ]
- then
-   cp -pfr  /$OLDSLES/etc/oratab /etc/oratab >> $LOGFILE
+ then 
+   echo "cp -pfr  /$OLDSLES/etc/oratab /etc/oratab"  >> $LOGFILE
+   cp -pfr  /$OLDSLES/etc/oratab /etc/oratab 
  fi
    if  [ -f /$OLDSLES/etc/oraInst.loc ] 
-  then
-    cp -pfr  /$OLDSLES/etc/oraInst.loc /etc/oraInst.loc >> $LOGFILE
+  then 
+    echo "cp -pfr  /$OLDSLES/etc/oraInst.loc /etc/oraInst.loc"  >> $LOGFILE
+    cp -pfr  /$OLDSLES/etc/oraInst.loc /etc/oraInst.loc
  fi
 echo "$TIME Coping oraInst.loc and oratab. " >> $LOGFILE 
 
 ##only for HANA
 if [ -d /mnt/var/lib/hdb/ ]
  then
-   rsync -av /$OLDSLES/var/lib/hdb/ /var/lib/hdb >> $LOGFILE
+   echo "rsync -av /$OLDSLES/var/lib/hdb/ /var/lib/hdb"  >> $LOGFILE
+   rsync -av /$OLDSLES/var/lib/hdb/ /var/lib/hdb 
  else
-   echo "there is not hana running" >> $LOGFILE
+   echo "Server is not HANA"  >> $LOGFILE
 fi
-echo "$TIME Coping /var/lib/hdb. " >> $LOGFILE 
+
 
 ####oracle_agent check#######
  egrep 'oracle_agent' /mnt/etc/fstab
 
 if [ $? -eq '1' ]
  then
-  rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent >> $LOGFILE
+  echo "rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent"  >> $LOGFILE
+  rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent 
  else
   echo " oracle_agent is a separate volume"
  fi
@@ -142,7 +158,7 @@ if [ -f /etc/sysconfig/network/ifcfg-eth$p ]
  then
    ls -la  /$OLDSLES/etc/sysconfig/network/ifcfg-eth$p
    rsync -avz  /$OLDSLES/etc/sysconfig/network/ /etc/sysconfig/network/ &&
-   systemctl restart network >> $LOGFILE
+   systemctl restart network 
   else
     echo "names are difrent"
  fi
@@ -151,22 +167,27 @@ done
 echo "$TIME Configuring network interfaces. " >> $LOGFILE
 
 ##local host set
-echo 'ypserver localhost' > /etc/yp.conf >> $LOGFILE
-echo 'basfad.basf.net' > /etc/defaultdomain >> $LOGFILE
+
+echo 'ypserver localhost' > /etc/yp.conf 
+echo 'basfad.basf.net' > /etc/defaultdomain 
 domainname $( cat /etc/defaultdomain )
 
 ##set hostname 
-hostnamectl set-hostname $2 >> $LOGFILE
+echo "hostnamectl set-hostname $2" >> $LOGFILE
+hostnamectl set-hostname $2 
 
 echo "$TIME Set host-name $2. " >> $LOGFILE
 
 ##check nfs mount points
 ######change machina id, this is need to rejoin to a suse-mgr01#####
-
-rm -rf /etc/machine-id >> $LOGFILE
-rm -rf /var/lib/dbus/machine-id >> $LOGFILE
-dbus-uuidgen --ensure=/etc/machine-id >> $LOGFILE
-cp /etc/machine-id /var/lib/dbus/machine-id >> $LOGFILE
+echo "rm -rf /etc/machine-id" >> $LOGFILE
+rm -rf /etc/machine-id 
+echo "rm -rf /var/lib/dbus/machine-id " >> $LOGFILE
+rm -rf /var/lib/dbus/machine-id 
+echo "dbus-uuidgen --ensure=/etc/machine-id " >> $LOGFILE
+dbus-uuidgen --ensure=/etc/machine-id 
+echo "cp /etc/machine-id /var/lib/dbus/machine-id " >> $LOGFILE
+cp /etc/machine-id /var/lib/dbus/machine-id 
 
 echo "$TIME Recreate machine-id. " >> $LOGFILE
 
@@ -183,9 +204,9 @@ vas_client_conf() {
 
 vas_client_conf
 ####joint to basf AD$#####
-
-/root/scripts/migration/basfad/./basfad_join2AD.sh -f $2 >> $LOGFILE
-
+echo "/root/scripts/migration/basfad/./basfad_join2AD.sh -f $2" >> $LOGFILE
+/root/scripts/migration/basfad/./basfad_join2AD.sh -f $2 
+echo "vastool status" >> $LOGFILE
 vastool status
 
 echo "$TIME Configure vastool. " >> $LOGFILE
@@ -200,6 +221,7 @@ systemctl enable autofs && systemctl restart autofs
 
 
 ####Register server to HPSA####
+echo "$OPSPACKAGE --loglevel info --opsw_gw_addr_list 10.92.96.41:3001 -f --force_new_device" >> $LOGFILE
 
 $OPSPACKAGE --loglevel info --opsw_gw_addr_list 10.92.96.41:3001 -f --force_new_device
 
@@ -211,13 +233,16 @@ if [ $s -eq "0" ]
  then
   echo "there is separate LV for Oracle_agent" >> $LOGFILE
  else
-  rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent/ >> $LOGFILE
+  echo "rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent/" >> $LOGFILE
+  rsync -avz /mnt/opt/oracle_agent/* /opt/oracle_agent/ 
 fi
 
 #sinc passwd,group and shadow files
-cp /etc/passwd /etc/passwd.back >> $LOGFILE
-cp /etc/group /etc/group.back >> $LOGFILE
-/root/scripts/migration/getLinuxApplUsers.sh >> /etc/passwd >> $LOGFILE
-/root/scripts/migration/getLinuxApplGroups.sh >> /etc/group >> $LOGFILE
+echo "cp /etc/passwd /etc/passwd.back " >> $LOGFILE
+cp /etc/passwd /etc/passwd.back 
+echo "cp /etc/group /etc/group.back" >> $LOGFILE
+cp /etc/group /etc/group.back 
+/root/scripts/migration/getLinuxApplUsers.sh >> /etc/passwd 
+/root/scripts/migration/getLinuxApplGroups.sh >> /etc/group 
 
 echo "$TIME Apps user and groups synchronized. " >> $LOGFILE
