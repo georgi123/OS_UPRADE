@@ -3,7 +3,7 @@
 #created by GD
 #created
 ###$1-old root VG name
-
+###adding check function######
 #######functions########
 check() {
 if  [ "$?" -eq "0" ]
