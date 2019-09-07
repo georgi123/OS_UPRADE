@@ -10,7 +10,7 @@ if  [ "$?" -eq "0" ]
  then
     echo "Command ended successful Yes"
   else
-       echo     "Command failed. NO"
+       echo     "Command failed. "
 fi
 }
 
