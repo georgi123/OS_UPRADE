@@ -1,5 +1,6 @@
 #!/bin/bash
 #Created by GD
+#try to check git solutions
 ###$1-old root VG name
 ###$2-host name
 ###date +"%T:%m-%d-%y"
